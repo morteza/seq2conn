@@ -1,4 +1,4 @@
-name: seq2graph
+name: seq2conn
 
 channels:
   - conda-forge

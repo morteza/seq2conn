@@ -1,6 +1,6 @@
 # Time-series to Connectivity
 
-The `ts2graph` converts time-series data into connectivity matrices.
+The `seq2conn` converts time-series data into connectivity matrices.
 
 
 
@@ -8,5 +8,5 @@ The `ts2graph` converts time-series data into connectivity matrices.
 
 ```bash
 mamba env create -f environment.yml
-mamba activate seq2graph
+mamba activate seq2conn
 ```
