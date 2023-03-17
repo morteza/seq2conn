@@ -1,4 +1,6 @@
+import torch
 from torch import nn
+import pytorch_lightning as pl
 
 
 class Encoder(nn.Module):
@@ -27,14 +29,33 @@ class Decoder(nn.Module):
         return out, h
 
 
-class SimpleVAE(nn.Module):
+class SimpleVAE(pl.LightningModule):
     def __init__(self, input_dim, hidden_dim, n_layers, n_subjects=1):
-        super(SimpleVAE, self).__init__()
-
+        super().__init__()
         self.encoder = Encoder(input_dim, hidden_dim, n_layers)
         self.decoder = Decoder(input_dim, hidden_dim, n_layers)
+
+        self.loss_fn = nn.MSELoss()
 
     def forward(self, x):
         h_enc = self.encoder(x)
         out, h_dec = self.decoder(None, h_enc)
         return out
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        return optimizer
+
+    def training_step(self, batch, batch_idx):
+        x = batch
+        x_reconstructed = self(x)
+        loss = self.loss_fn(x_reconstructed, x)
+        self.log('train/loss', loss, on_epoch=True)
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+        x = batch
+        x_reconstructed = self(x)
+        loss = self.loss_fn(x_reconstructed, x)
+        self.log('val/loss', loss, on_epoch=True)
+        return loss
