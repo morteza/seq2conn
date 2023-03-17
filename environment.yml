@@ -1,6 +1,8 @@
 name: seq2conn
 
 channels:
+  - pytorch
+  - nvidia
   - conda-forge
   - defaults
 
@@ -9,4 +11,6 @@ dependencies:
   - ipykernel
   - ipywidgets
   - pip
+  - pytorch
+  - pytorch-cuda=11.8
   - pytorch-lightning
