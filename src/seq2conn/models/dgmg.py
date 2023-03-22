@@ -1,9 +1,12 @@
+# Code from https://github.com/dmlc/dgl/tree/master/examples/pytorch/dgmg
+
 from functools import partial
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions import Bernoulli, Categorical
+import dgl
 
 
 class GraphEmbed(nn.Module):
@@ -227,7 +230,7 @@ class ChooseDestAndUpdate(nn.Module):
         if self.training:
             if dests_probs.nelement() > 1:
                 self.log_prob.append(
-                    F.log_softmax(dests_scores, dim=1)[:, dest : dest + 1]
+                    F.log_softmax(dests_scores, dim=1)[:, dest: dest + 1]
                 )
 
 
@@ -255,7 +258,7 @@ class DGMG(nn.Module):
         self.init_weights()
 
     def init_weights(self):
-        from utils import dgmg_message_weight_init, weights_init
+        from .dgmg_utils import dgmg_message_weight_init, weights_init
 
         self.graph_embed.apply(weights_init)
         self.graph_prop.apply(weights_init)
@@ -298,9 +301,9 @@ class DGMG(nn.Module):
 
     def get_log_prob(self):
         return (
-            torch.cat(self.add_node_agent.log_prob).sum()
-            + torch.cat(self.add_edge_agent.log_prob).sum()
-            + torch.cat(self.choose_dest_agent.log_prob).sum()
+            torch.cat(self.add_node_agent.log_prob).sum() +
+            torch.cat(self.add_edge_agent.log_prob).sum() +
+            torch.cat(self.choose_dest_agent.log_prob).sum()
         )
 
     def forward_train(self, actions):
