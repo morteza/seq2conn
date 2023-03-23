@@ -1,6 +1,6 @@
 # Time-series to Connectivity
 
-The `seq2conn` converts time-series data into connectivity matrices.
+`seq2conn` is a variationalauto-encoder to extract connectivity embedding from a list of time-series.
 
 
 
