@@ -3,7 +3,8 @@ name: seq2conn
 channels:
   - pytorch
   - nvidia
-  # - dglteam/label/cu118
+  - pyg
+  # - dglteam/label/cu118  # for DGL/CUDA 11.8
   - conda-forge
   - defaults
 
@@ -13,7 +14,8 @@ dependencies:
   - ipywidgets
   - pip
   - pytorch
-  # - pytorch-cuda=11.8
+  - pyg
   - pytorch-lightning
-  # - dgl
   - tensorboardX
+  # - pytorch-cuda=11.8
+  # - dgl

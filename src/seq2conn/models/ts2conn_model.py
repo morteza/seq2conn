@@ -5,7 +5,7 @@ from torch import nn
 from torch.distributions import Bernoulli, Normal, kl_divergence
 from .graph_decoder import GraphDecoder
 from .graph_encoder import GraphEncoder
-from .graph_vae import GraphVAE
+from torch_geometric.nn.models import VGAE
 
 
 class TS2ConnModel(pl.LightningModule):
@@ -16,7 +16,7 @@ class TS2ConnModel(pl.LightningModule):
             nn.Linear(hidden_dim, 1),
             nn.Sigmoid())
         self.edge_prob_fc = nn.Linear(hidden_dim, edge_dim)
-        self.graph_vae = GraphVAE(hidden_dim, hidden_dim)
+        self.graph_vae = VGAE(hidden_dim, hidden_dim)
         self.graph_encoder = GraphEncoder(hidden_dim, edge_dim)
         self.graph_decoder = GraphDecoder(hidden_dim, edge_dim)
         self.decoder = nn.Linear(hidden_dim, input_dim)

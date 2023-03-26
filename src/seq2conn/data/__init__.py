@@ -1,4 +1,4 @@
-from .random_data_module import RandomDataModule
+from .random import RandomDataModule
 
 
 __all__ = [
