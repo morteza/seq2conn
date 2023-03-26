@@ -342,7 +342,6 @@ class DGMG(nn.Module):
         self.g.set_n_initializer(dgl.frame.zero_initializer)
         self.g.set_e_initializer(dgl.frame.zero_initializer)
 
-        if self.training:
-            return self.forward_train(actions)
-        else:
-            return self.forward_inference()
+        return self.forward_train(actions)
+
+        # if not self.training self.forward_inference()
