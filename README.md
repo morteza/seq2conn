@@ -1,7 +1,6 @@
 # Time-series to Connectivity
 
-`seq2conn` is a variationalauto-encoder to extract connectivity embedding from a list of time-series.
-
+`seq2conn` learns an embedding graph structure from time-series data optimized to preserve the temporal structure of the data.
 
 
 ## Setup
