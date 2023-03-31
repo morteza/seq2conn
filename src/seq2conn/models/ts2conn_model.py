@@ -30,43 +30,47 @@ class TS2ConnModel(pl.LightningModule):
                 adj[:, i, j] = edges[:, i * n_nodes + j]
         return adj
 
+    def add_node_actor(self, G_embedding):
+        add_node_prob = self.add_node_fc(G_embedding)
+
+        add_node = Bernoulli(probs=add_node_prob).sample()
+
+        new_node_embedding = None  # defaults to None (if add_node == False)
+
+        if add_node:
+            new_node_embedding = ...
+
+        return add_node, new_node_embedding
+
+    def add_edge_actor(self, G_embedding, src_node, tgt_node):
+
+        src_embedding = G_embedding[:, src_node, :]
+        tgt_embedding = G_embedding[:, tgt_node, :]
+
+        similarities = torch.cosine_similarity(src_embedding, tgt_embedding, dim=1)
+
+        add_edge_dist = Bernoulli(probs=similarities)
+
+        return add_edge_dist.sample()
+
     def forward(self, x):
         # Encode the time series
         h = self.encoder(x)
 
-        # determine the number of nodes from the input data
-        n_nodes = self.n_nodes_fc(h).squeeze().round().long().item()
+        # Graph Generator (Encoder)
 
-        # Learn the edge probabilities from the input data
-        edge_probs = torch.sigmoid(self.edge_prob_fc(h))
-        edge_probs = edge_probs.view(-1, self.edge_dim)
-
-        # Generate a probabilistic graph embedding
-        z, z_mean, z_std = self.graph_vae(h)
-
-        # Generate edges from the graph embedding
-        edge_logits = self.graph_encoder(z, None)
-        edge_probs = edge_probs.repeat(1, n_nodes * n_nodes).view(-1, self.edge_dim)
-        edge_probs = torch.sigmoid(edge_probs + edge_logits)
-        edge_probs = edge_probs.view(-1, n_nodes * n_nodes, self.edge_dim)
-
-        # Sample edges using the Bernoulli distribution
-        edge_dist = Bernoulli(probs=edge_probs)
-        edges = edge_dist.sample()
-
-        # Construct the adjacency matrix from the sampled edges
-        adj = self.to_dense_adj(edges)
-
-        # Reconstruct the graph embedding from the adjacency matrix
-        adj = adj.view(-1, n_nodes, n_nodes)
-        adj = adj + adj.transpose(-2, -1)  # Ensure that the adjacency matrix is symmetric
-        adj = adj.view(-1, n_nodes * n_nodes)
-        z_recon = self.graph_decoder(adj, None)
-
-        # Reconstruct the time series from the graph embedding
-        x_recon = self.decoder(z_recon)
-
-        return x_recon, z_mean, z_std
+        actions = []
+        while True:
+            add_node, new_node = self.add_node_actor(h)
+            actions.append((add_node, new_node))
+            if add_node:
+                for tgt_node in self.nodes:
+                    add_edge, edge_weight = self.add_edge_actor(new_node, tgt_node)
+                    actions.append((add_edge, edge_weight))
+                    if add_edge:
+                        self.edges.append((new_node, tgt_node, edge_weight))
+            else:  # stop the loop if add_node == False
+                break
 
     def training_step(self, batch, batch_idx):
         x, _ = batch
