@@ -17,5 +17,6 @@ dependencies:
   - pyg
   - pytorch-lightning
   - tensorboardX
+  - torchinfo
   # - pytorch-cuda=11.8
   # - dgl
